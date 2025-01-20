@@ -5,7 +5,10 @@ __pycache__/
 .env
 
 # Generated or temporary data
-data/
+data/*
+
+# Allow the conversion bd_erros_de_conversao_datas file
+!data/bd_erros_de_conversao_datas.csv
 
 # IDEs
 .vscode/

@@ -59,6 +59,7 @@ def create_tables(conn):
         raise
 
 def process_dates(df, date_columns):
+    error_rows = []
     for column in date_columns:
         try:
             if df[column].str.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$').any():
@@ -66,9 +67,19 @@ def process_dates(df, date_columns):
             else:
                 df[column] = pd.to_datetime(df[column], errors='coerce', dayfirst=True)
         
+            invalid_dates = df[df[column].isna()]
+            if not invalid_dates.empty:
+                    error_rows.append(invalid_dates)
+
         except Exception as e:
             logger.error(f"Error processing date column {column}: {e}")      
             raise
+
+    if error_rows:
+        error_df = pd.concat(error_rows)
+        file_path = '/src/data/bd_erros_de_conversao_datas.csv'
+        error_df.to_csv(file_path, mode='a', index=False, header=not os.path.exists(file_path))
+        logger.info(f"Conversion errors logged in 'bd_erros_de_conversao_datas.csv'")
 
     return df
 
@@ -83,7 +94,7 @@ def fetch_existing_data_limite(conn):
         logger.error(f"Error fetching existing data_limite: {e}")
         raise
 
-def insert_data_optimized(conn, df, existing_data):
+def insert_data(conn, df, existing_data):
     try:
         cur = conn.cursor()
 
@@ -111,7 +122,7 @@ def insert_data_optimized(conn, df, existing_data):
             ON CONFLICT (id_atendimento) DO NOTHING;
         """, [tuple(row) for _, row in atendimentos_data.iterrows()])
 
-        logger.info(f"{len(atendimentos_data)} registros inseridos na tabela atendimentos")
+        logger.info(f"{len(atendimentos_data)} records inserted into the 'atendimentos' table")
         conn.commit()
 
     except Exception as e:
@@ -144,7 +155,7 @@ def main():
         for i, df in enumerate(chunks):
             print(f"Processing chunk {i + 1} with {len(df)} records...")
             df = process_dates(df, ['data_limite', 'data_de_atendimento'])
-            insert_data_optimized(conn, df, existing_data)
+            insert_data(conn, df, existing_data)
 
     except Exception as e:
         logger.critical(f"Critical error in the main execution: {e}")

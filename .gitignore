@@ -3,7 +3,12 @@ __pycache__/
 
 # Docker
 .env
+
+# Generated or temporary data
 data/
 
 # IDEs
 .vscode/
+
+# Virtual Environment
+venv/

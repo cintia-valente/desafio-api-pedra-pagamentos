@@ -60,6 +60,8 @@ def create_tables(conn):
 
 def process_dates(df, date_columns):
     error_rows = []
+    original_dates = df[date_columns].copy()
+
     for column in date_columns:
         try:
             if df[column].str.match(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$').any():
@@ -77,6 +79,9 @@ def process_dates(df, date_columns):
 
     if error_rows:
         error_df = pd.concat(error_rows)
+        for column in date_columns:
+            error_df[f"original_{column}"] = original_dates[column] 
+
         file_path = '/src/data/bd_erros_de_conversao_datas.csv'
         error_df.to_csv(file_path, mode='a', index=False, header=not os.path.exists(file_path))
         logger.info(f"Conversion errors logged in 'bd_erros_de_conversao_datas.csv'")

@@ -6,14 +6,16 @@ COPY src/requirements.txt /app/
 
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY . /app/
+COPY src /app/
+
+ENV PYTHONPATH=/app:$PYTHONPATH
 
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
 EXPOSE 5000
 
-COPY scripts /scripts
+COPY src /scripts
 
-CMD ["sh", "-c", "python /scripts/load_data.py && gunicorn --reload -b 0.0.0.0:5000 app:app"]
+CMD ["sh", "-c", "python app/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:5000 app:app"]
 

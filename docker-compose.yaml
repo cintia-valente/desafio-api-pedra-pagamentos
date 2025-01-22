@@ -5,14 +5,15 @@ services:
       dockerfile: Dockerfile
     volumes: 
       - "./src:/app"
-      - "./data:/src/infrastructure/data"
+      - "./src/infrastructure/data:/app/infrastructure/data"
     ports:
       - "5000:5000" 
     environment:
      - DATABASE_URL=${DATABASE_URL} 
     depends_on:
       - db
-    command: ["sh", "-c", "python /scripts/load_data.py && gunicorn --reload -b 0.0.0.0:5000 app:app"]
+    restart: unless-stopped
+    command: ["sh", "-c", "python /app/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:5000 app.app:app"]
 
   db:
     image: postgres:latest  

@@ -1,5 +1,7 @@
 from flask import Flask, request
+from usecases.atendimento.get_atendimentos.get_atendimentos_by_id_cliente_input_dto import GetAtendimentosByIdClienteInputDto
 from usecases.atendimento.post_atendimento.post_atendimento_input_dto import PostAtendimentoInputDto
+from usecases.factories.get_atendimentos_usecase_factory import GetAtendimentosByClienteUseCaseFactory
 from usecases.factories.post_atendimento_usecase_factory import PostAtendimentoUseCaseFactory
 from dotenv import load_dotenv
 from flasgger import Swagger
@@ -13,13 +15,14 @@ swagger = Swagger(app)
 def create_post_atendimento_usecase():
     return PostAtendimentoUseCaseFactory.create()
 
-@app.route('/atendimentos', methods=['POST'])
-def postAtendimento():
+@app.route('/atendimentos/registrar', methods=['POST'])
+def post_atendimento():
     """
     Cria um novo atendimento.
     ---
     tags:
       - Atendimentos
+    operationId: post_atendimento 
     parameters:
       - in: body
         name: body
@@ -47,7 +50,76 @@ def postAtendimento():
     except Exception as e:
         import traceback
         print(f"Error: {e}")
-        print(traceback.format_exc())  # Exibe a pilha de erros
+        print(traceback.format_exc()) 
+        return {"error": "An unexpected error occurred"}, 500
+    
+@app.route('/atendimentos/<int:id_cliente>', methods=['GET'])
+def get_atendimentos_by_id_cliente(id_cliente):
+    """
+    Obtém todos os atendimentos de um cliente pelo seu ID.
+    ---
+    tags:
+      - Atendimentos
+    operationId: get_atendimentos_by_id_cliente 
+    parameters:
+      - in: path
+        name: id_cliente
+        required: true
+        description: ID do cliente
+        type: integer
+    responses:
+      200:
+        description: Lista de atendimentos do cliente
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id_atendimento:
+                type: integer
+              id_cliente:
+                type: integer
+              angel:
+                type: string
+              polo:
+                type: string
+              data_limite:
+                type: string
+                format: date
+              data_de_atendimento:
+                type: string
+                format: date
+      404:
+        description: Cliente não encontrado
+    """
+    
+    try:
+        use_case = GetAtendimentosByClienteUseCaseFactory.create()
+        atendimentos_dto = GetAtendimentosByIdClienteInputDto(id_cliente=id_cliente)
+
+        atendimentos = use_case.execute(atendimentos_dto)
+        
+        if not atendimentos_dto:
+            return {"error": "Cliente not found"}, 404
+        
+        result = [
+            {
+                "id_atendimento": atendimento.id_atendimento,
+                "id_cliente": atendimento.id_cliente,
+                "angel": atendimento.angel,
+                "polo": atendimento.polo,
+                "data_limite": atendimento.data_limite.strftime('%Y-%m-%d'),
+                "data_de_atendimento": atendimento.data_de_atendimento.strftime('%Y-%m-%d')
+            }
+            for atendimento in atendimentos
+        ]
+        
+        return {"atendimentos": result}, 200
+
+    except Exception as e:
+        import traceback
+        print(f"Error: {e}")
+        print(traceback.format_exc()) 
         return {"error": "An unexpected error occurred"}, 500
 
 if __name__ == '__main__':

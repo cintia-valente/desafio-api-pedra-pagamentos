@@ -48,9 +48,16 @@ class AtendimentoRepository(AtendimentoRepositoryInterface):
             self.conn.rollback()
             raise Exception(f"Error inserting atendimento: {e}")
 
-    def get_atendimentos_by_cliente(self, id_cliente: int) -> list[Atendimento]:
+    def get_atendimentos_by_id_cliente(self, id_cliente: int) -> list[Atendimento]:
         query = "SELECT * FROM atendimentos WHERE id_cliente = %s"
-        result = self.conn.execute(query, (id_cliente))
-        atendimentos = [Atendimento(**row) for row in result]
+        
+        self.cursor.execute(query, (id_cliente,))
 
+        columns = [desc[0] for desc in self.cursor.description]
+
+        result = self.cursor.fetchall()
+
+        atendimentos = [Atendimento(**dict(zip(columns, row))) for row in result]
+
+        self.cursor.close()
         return atendimentos

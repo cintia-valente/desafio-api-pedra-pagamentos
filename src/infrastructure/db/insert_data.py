@@ -48,8 +48,8 @@ def insert_data(conn, df, existing_data):
                     ON CONFLICT (id_atendimento) DO NOTHING;
                 """, [tuple(row) for _, row in atendimentos_data.iterrows()])
             except Exception as e:
-                            logger.error(f"Error inserting atendimento row {row['id_atendimento']}: {e}")
-                            continue 
+                logger.error(f"Error inserting atendimento row {row['id_atendimento']}: {e}")
+                continue 
             
         logger.info(f"{len(atendimentos_data)} records inserted into the 'atendimentos' table")
         conn.commit()

@@ -15,4 +15,5 @@ class PostAtendimentoOutputDto:
         self.data_de_atendimento = data_de_atendimento
 
 
+
         

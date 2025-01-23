@@ -1,7 +1,7 @@
 import datetime
 
 class PostAtendimentoInputDto:
-    def __init__(self, id_atendimento: int,
+    def __init__(self, id_atendimento: int, 
                        id_cliente: int,
                        angel: str,
                        polo: str,

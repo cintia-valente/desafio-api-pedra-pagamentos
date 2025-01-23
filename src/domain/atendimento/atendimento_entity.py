@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 class Atendimento:
 

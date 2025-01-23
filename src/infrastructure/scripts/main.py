@@ -2,8 +2,8 @@ import logging
 import os
 from dotenv import load_dotenv
 
-from infrastructure.db.database import connect_to_database
 from infrastructure.db.create_tables import create_tables
+from infrastructure.db.database import connect_to_database
 from infrastructure.db.insert_data import insert_data
 from infrastructure.process.processing import fetch_existing_data, process_dates
 from infrastructure.scripts.load_data import load_csv_in_chunks

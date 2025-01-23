@@ -1,18 +1,21 @@
 from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
-from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
+from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
 from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_output_dto import GetAtendimentosOutputDto
 
-class GetAtendimentosByIdClienteUseCase(UseCaseInterface):
+class GetAtendimentosClienteByAngelUseCase(UseCaseInterface):
 
     def __init__(self, atendimento_repository: AtendimentoRepositoryInterface):
         self.atendimento_repository = atendimento_repository
 
-    def execute(self, id_cliente_dto: GetAtendimentosByClienteInputDto) -> list[GetAtendimentosOutputDto]:
-        id_cliente = id_cliente_dto.id_cliente
+    def execute(self, input_dto: GetAtendimentosClienteByAngelInputDto) -> list[GetAtendimentosOutputDto]:
         
-        atendimentos = self.atendimento_repository.get_atendimentos_by_id_cliente(id_cliente)
+        id_cliente = input_dto.id_cliente
+        angel = input_dto.angel
 
+
+        atendimentos = self.atendimento_repository.get_atendimentos_cliente_by_angel(id_cliente, angel)
+       
         print(f"Atendimentos retornados: {atendimentos}") 
         
         if not atendimentos:

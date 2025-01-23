@@ -1,3 +1,5 @@
+import datetime
+from typing import List
 import psycopg2
 from domain.atendimento.atendimento_entity import Atendimento
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
@@ -47,7 +49,7 @@ class AtendimentoRepository(AtendimentoRepositoryInterface):
         except Exception as e:
             self.conn.rollback()
             raise Exception(f"Error inserting atendimento: {e}")
-
+    
     def get_atendimentos_by_id_cliente(self, id_cliente: int) -> list[Atendimento]:
         query = "SELECT * FROM atendimentos WHERE id_cliente = %s"
         
@@ -60,4 +62,24 @@ class AtendimentoRepository(AtendimentoRepositoryInterface):
         atendimentos = [Atendimento(**dict(zip(columns, row))) for row in result]
 
         self.cursor.close()
+        return atendimentos
+    
+    def get_atendimentos_cliente_by_angel(self, id_cliente: int, angel: str) -> list[Atendimento]:
+        query = """
+            SELECT * 
+            FROM atendimentos 
+            WHERE id_cliente = %s 
+            AND angel = %s
+        """
+        
+        self.cursor.execute(query, (id_cliente, angel))
+
+        columns = [desc[0] for desc in self.cursor.description]
+
+        result = self.cursor.fetchall()
+
+        atendimentos = [Atendimento(**dict(zip(columns, row))) for row in result]
+
+        self.cursor.close()
+
         return atendimentos

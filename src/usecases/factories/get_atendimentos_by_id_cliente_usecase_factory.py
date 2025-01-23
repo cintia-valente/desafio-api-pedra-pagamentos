@@ -4,7 +4,7 @@ from infrastructure.db.database import connect_to_database
 from usecases.atendimento.get_atendimentos.get_atendimentos_by_id_cliente_usecase import GetAtendimentosByIdClienteUseCase
 
 
-class GetAtendimentosByClienteUseCaseFactory:
+class GetAtendimentosByIdClienteUseCaseFactory:
 
     @staticmethod
     def create() -> GetAtendimentosByIdClienteUseCase:

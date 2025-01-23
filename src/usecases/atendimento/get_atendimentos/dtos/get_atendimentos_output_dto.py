@@ -1,6 +1,6 @@
 import datetime
 
-class GetAtendimentosByIdClienteOutputDto:
+class GetAtendimentosOutputDto:
     def __init__(self, id_atendimento: int,
                        id_cliente: int,
                        angel: str,

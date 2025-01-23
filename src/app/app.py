@@ -1,8 +1,10 @@
 from flask import Flask, request
-from usecases.atendimento.get_atendimentos.get_atendimentos_by_id_cliente_input_dto import GetAtendimentosByIdClienteInputDto
+from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
+from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
 from usecases.atendimento.post_atendimento.post_atendimento_input_dto import PostAtendimentoInputDto
-from usecases.factories.get_atendimentos_usecase_factory import GetAtendimentosByClienteUseCaseFactory
 from usecases.factories.post_atendimento_usecase_factory import PostAtendimentoUseCaseFactory
+from usecases.factories.get_atendimentos_cliente_by_angel_usecase_factory import  GetAtendimentosClienteByAngelUseCaseFactory
+from usecases.factories.get_atendimentos_by_id_cliente_usecase_factory import GetAtendimentosByIdClienteUseCaseFactory
 from dotenv import load_dotenv
 from flasgger import Swagger
 
@@ -90,17 +92,17 @@ def get_atendimentos_by_id_cliente(id_cliente):
                 type: string
                 format: date
       404:
-        description: Cliente não encontrado
+        description: Atendimento não encontrado
     """
     
     try:
-        use_case = GetAtendimentosByClienteUseCaseFactory.create()
-        atendimentos_dto = GetAtendimentosByIdClienteInputDto(id_cliente=id_cliente)
+        use_case = GetAtendimentosByIdClienteUseCaseFactory.create()
+        atendimentos_dto = GetAtendimentosByClienteInputDto(id_cliente=id_cliente)
 
         atendimentos = use_case.execute(atendimentos_dto)
         
         if not atendimentos_dto:
-            return {"error": "Cliente not found"}, 404
+            return {"error": "Atendimentos not found"}, 404
         
         result = [
             {
@@ -121,6 +123,81 @@ def get_atendimentos_by_id_cliente(id_cliente):
         print(f"Error: {e}")
         print(traceback.format_exc()) 
         return {"error": "An unexpected error occurred"}, 500
+    
+@app.route('/atendimentos/<int:id_cliente>/<string:angel>', methods=['GET'])
+def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
+    """
+    Obtém todos os atendimentos de um cliente realizados por um Angel.
+    ---
+    tags:
+      - Atendimentos
+    operationId: get_atendimentos_by_cliente_and_angel 
+    parameters:
+      - in: path
+        name: id_cliente
+        required: true
+        description: ID do cliente
+        type: integer
+      - in: path
+        name: angel
+        required: true
+        description: angel
+        type: string
+    responses:
+      200:
+        description: Lista de atendimentos do cliente
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id_atendimento:
+                type: integer
+              id_cliente:
+                type: integer
+              angel:
+                type: string
+              polo:
+                type: string
+              data_limite:
+                type: string
+                format: date
+              data_de_atendimento:
+                type: string
+                format: date
+      404:
+        description: Atendimento não encontrado
+    """
+    try:
+        use_case = GetAtendimentosClienteByAngelUseCaseFactory.create()
+
+        atendimentos_dto = GetAtendimentosClienteByAngelInputDto(id_cliente=id_cliente, angel=angel)
+        
+        atendimentos = use_case.execute(atendimentos_dto)
+
+        if not atendimentos:
+            return {"error": "Atendimentos não encontrados"}, 404
+        
+        result = [
+            {
+                "id_atendimento": atendimento.id_atendimento,
+                "id_cliente": atendimento.id_cliente,
+                "angel": atendimento.angel,
+                "polo": atendimento.polo,
+                "data_limite": atendimento.data_limite.strftime('%Y-%m-%d'),
+                "data_de_atendimento": atendimento.data_de_atendimento.strftime('%Y-%m-%d')
+            }
+            for atendimento in atendimentos
+        ]
+        
+        return {"atendimentos": result}, 200
+
+    except Exception as e:
+        import traceback
+        print(f"Error: {e}")
+        print(traceback.format_exc()) 
+        return {"error": "Ocorreu um erro inesperado"}, 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

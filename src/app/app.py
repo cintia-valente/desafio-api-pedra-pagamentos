@@ -1,12 +1,15 @@
 from flask import Flask, request
-from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
-from usecases.atendimento.get_atendimentos.dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
-from usecases.atendimento.post_atendimento.post_atendimento_input_dto import PostAtendimentoInputDto
+
+from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
+from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
+from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
+from usecases.atendimento.dtos.put_atendimentos_dto.put_atendimento_input_dto import PutAtendimentoInputDto
 from usecases.factories.post_atendimento_usecase_factory import PostAtendimentoUseCaseFactory
 from usecases.factories.get_atendimentos_cliente_by_angel_usecase_factory import  GetAtendimentosClienteByAngelUseCaseFactory
 from usecases.factories.get_atendimentos_by_id_cliente_usecase_factory import GetAtendimentosByIdClienteUseCaseFactory
 from dotenv import load_dotenv
 from flasgger import Swagger
+from usecases.factories.put_atendimento_usecase_factory import PutAtendimentoUseCaseFactory
 
 app = Flask(__name__)
 
@@ -127,7 +130,7 @@ def get_atendimentos_by_id_cliente(id_cliente):
 @app.route('/atendimentos/<int:id_cliente>/<string:angel>', methods=['GET'])
 def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
     """
-    Obtém todos os atendimentos de um cliente realizados por um Angel.
+    Obtém todos os atendimentos de um cliente realizados por um angel.
     ---
     tags:
       - Atendimentos
@@ -197,7 +200,78 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
         print(f"Error: {e}")
         print(traceback.format_exc()) 
         return {"error": "Ocorreu um erro inesperado"}, 500
+    
+@app.route('/atendimentos/atualizar/<int:id_atendimento>', methods=['PUT'])
+def put_atendimento(id_atendimento):
+    """
+    Atualiza um atendimento existente.
+    ---
+    tags:
+      - Atendimentos
+    operationId: put_atendimento 
+    parameters:
+      - in: path
+        name: id_cliente
+        required: true
+        description: ID do cliente
+        type: integer
+      - in: path
+        name: angel
+        required: true
+        description: angel
+        type: string
+        - in: path
+        name: polo
+        required: true
+        description: polo
+        type: integer
+      - in: path
+        name: data_limite
+        required: true
+        description: data_limite
+        type: string
+      - in: path
+        name: data_de_atendimento
+        required: true
+        description: data_de_atendimento
+        type: string
+    responses:
+      200:
+        description: Atendimento atualizado
+    """
+    data = request.get_json()
+    
+    # Verifica se id_atendimento está no corpo da requisição e remove-o, pois já vem da URL
+    if 'id_atendimento' in data:
+        del data['id_atendimento']
 
+    required_fields = ["id_cliente", "angel", "polo", "data_limite", "data_de_atendimento"]
+    for field in required_fields:
+        if field not in data:
+            return {"error": f"'{field}' is required"}, 400
+
+    try:
+        # Agora, somente o id_atendimento da URL é passado, sem conflitos
+        input_dto = PutAtendimentoInputDto(id_atendimento=id_atendimento, **data)
+
+        use_case = PutAtendimentoUseCaseFactory.create()
+        output_dto = use_case.execute(input_dto)
+
+        # Retorno dos dados atualizados
+        return {
+            "id_atendimento": output_dto.id_atendimento,
+            "id_cliente": output_dto.id_cliente,
+            "angel": output_dto.angel,
+            "polo": output_dto.polo,
+            "data_limite": output_dto.data_limite.strftime('%Y-%m-%d'),
+            "data_de_atendimento": output_dto.data_de_atendimento.strftime('%Y-%m-%d')
+        }, 200
+
+    except Exception as e:
+        import traceback
+        print(f"Error: {e}")
+        print(traceback.format_exc())
+        return {"error": "An unexpected error occurred"}, 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

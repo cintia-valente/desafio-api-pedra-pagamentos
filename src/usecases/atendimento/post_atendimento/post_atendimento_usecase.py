@@ -1,15 +1,15 @@
 from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
 from domain.atendimento.atendimento_entity import Atendimento
-from usecases.atendimento.post_atendimento.post_atendimento_input_dto import PostAtendimentoInputDto
-from usecases.atendimento.post_atendimento.post_atendimento_output_dto import PostAtendimentoOutputDto
+from usecases.atendimento.dtos.atendimento_output_dto import AtendimentoOutputDto
+from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
 
 class PostAtendimentoUseCase(UseCaseInterface):
 
     def __init__(self, atendimento_repository: AtendimentoRepositoryInterface):
         self.atendimento_repository = atendimento_repository
 
-    def execute(self, atendimento_dto: PostAtendimentoInputDto) -> PostAtendimentoOutputDto:
+    def execute(self, atendimento_dto: PostAtendimentoInputDto) -> AtendimentoOutputDto:
        atendimento = Atendimento(
           id_atendimento= atendimento_dto.id_atendimento,
           id_cliente=atendimento_dto.id_cliente,
@@ -20,7 +20,7 @@ class PostAtendimentoUseCase(UseCaseInterface):
        
        saved_atendimento = self.atendimento_repository.post_atendimento(atendimento=atendimento)
 
-       return PostAtendimentoOutputDto(
+       return AtendimentoOutputDto(
           id_atendimento=saved_atendimento.id_atendimento,
           id_cliente=saved_atendimento.id_cliente,
           angel=saved_atendimento.angel,

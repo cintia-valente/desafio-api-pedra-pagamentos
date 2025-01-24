@@ -1,15 +1,15 @@
 from flask import Flask, request
 
+from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
 from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
 from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
-from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
 from usecases.atendimento.dtos.put_atendimentos_dto.put_atendimento_input_dto import PutAtendimentoInputDto
 from usecases.factories.post_atendimento_usecase_factory import PostAtendimentoUseCaseFactory
 from usecases.factories.get_atendimentos_cliente_by_angel_usecase_factory import  GetAtendimentosClienteByAngelUseCaseFactory
 from usecases.factories.get_atendimentos_by_id_cliente_usecase_factory import GetAtendimentosByIdClienteUseCaseFactory
+from usecases.factories.put_atendimento_usecase_factory import PutAtendimentoUseCaseFactory
 from dotenv import load_dotenv
 from flasgger import Swagger
-from usecases.factories.put_atendimento_usecase_factory import PutAtendimentoUseCaseFactory
 
 app = Flask(__name__)
 
@@ -41,15 +41,12 @@ def post_atendimento():
     """
 
     data = request.get_json()
-    required_fields = ["id_cliente", "angel", "polo", "data_limite", "data_de_atendimento"]
-    for field in required_fields:
-        if field not in data:
-            return {"error": f"'{field}' is required"}, 400
 
     try:
         input_dto = PostAtendimentoInputDto(**data)
         use_case = create_post_atendimento_usecase()
         output_dto = use_case.execute(input_dto)
+
         return {"id_atendimento": output_dto.id_atendimento}, 201
 
     except Exception as e:
@@ -101,25 +98,9 @@ def get_atendimentos_by_id_cliente(id_cliente):
     try:
         use_case = GetAtendimentosByIdClienteUseCaseFactory.create()
         atendimentos_dto = GetAtendimentosByClienteInputDto(id_cliente=id_cliente)
-
         atendimentos = use_case.execute(atendimentos_dto)
         
-        if not atendimentos_dto:
-            return {"error": "Atendimentos not found"}, 404
-        
-        result = [
-            {
-                "id_atendimento": atendimento.id_atendimento,
-                "id_cliente": atendimento.id_cliente,
-                "angel": atendimento.angel,
-                "polo": atendimento.polo,
-                "data_limite": atendimento.data_limite.strftime('%Y-%m-%d'),
-                "data_de_atendimento": atendimento.data_de_atendimento.strftime('%Y-%m-%d')
-            }
-            for atendimento in atendimentos
-        ]
-        
-        return {"atendimentos": result}, 200
+        return atendimentos
 
     except Exception as e:
         import traceback
@@ -173,27 +154,10 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
     """
     try:
         use_case = GetAtendimentosClienteByAngelUseCaseFactory.create()
-
         atendimentos_dto = GetAtendimentosClienteByAngelInputDto(id_cliente=id_cliente, angel=angel)
-        
         atendimentos = use_case.execute(atendimentos_dto)
-
-        if not atendimentos:
-            return {"error": "Atendimentos não encontrados"}, 404
         
-        result = [
-            {
-                "id_atendimento": atendimento.id_atendimento,
-                "id_cliente": atendimento.id_cliente,
-                "angel": atendimento.angel,
-                "polo": atendimento.polo,
-                "data_limite": atendimento.data_limite.strftime('%Y-%m-%d'),
-                "data_de_atendimento": atendimento.data_de_atendimento.strftime('%Y-%m-%d')
-            }
-            for atendimento in atendimentos
-        ]
-        
-        return {"atendimentos": result}, 200
+        return atendimentos
 
     except Exception as e:
         import traceback
@@ -211,61 +175,50 @@ def put_atendimento(id_atendimento):
     operationId: put_atendimento 
     parameters:
       - in: path
-        name: id_cliente
+        name: id_atendimento
         required: true
-        description: ID do cliente
+        description: ID do atendimento
         type: integer
-      - in: path
-        name: angel
+      - in: body
+        name: body
         required: true
-        description: angel
-        type: string
-        - in: path
-        name: polo
-        required: true
-        description: polo
-        type: integer
-      - in: path
-        name: data_limite
-        required: true
-        description: data_limite
-        type: string
-      - in: path
-        name: data_de_atendimento
-        required: true
-        description: data_de_atendimento
-        type: string
+        description: Atendimento payload (não inclui o campo id_atendimento no corpo)
+        schema:
+          type: object
+          properties:
+            id_cliente:
+              type: integer
+              description: ID do cliente
+            angel:
+              type: string
+              description: Angel associado ao atendimento
+            polo:
+              type: string
+              description: Polo associado ao atendimento
+            data_limite:
+              type: string
+              format: date
+              description: Data limite para o atendimento
+            data_de_atendimento:
+              type: string
+              format: date
+              description: Data do atendimento
     responses:
       200:
         description: Atendimento atualizado
     """
+
     data = request.get_json()
-    
-    # Verifica se id_atendimento está no corpo da requisição e remove-o, pois já vem da URL
+
     if 'id_atendimento' in data:
         del data['id_atendimento']
 
-    required_fields = ["id_cliente", "angel", "polo", "data_limite", "data_de_atendimento"]
-    for field in required_fields:
-        if field not in data:
-            return {"error": f"'{field}' is required"}, 400
-
     try:
-        # Agora, somente o id_atendimento da URL é passado, sem conflitos
         input_dto = PutAtendimentoInputDto(id_atendimento=id_atendimento, **data)
-
         use_case = PutAtendimentoUseCaseFactory.create()
-        output_dto = use_case.execute(input_dto)
+        atendimento = use_case.execute(input_dto)
 
-        # Retorno dos dados atualizados
-        return {
-            "id_atendimento": output_dto.id_atendimento,
-            "id_cliente": output_dto.id_cliente,
-            "angel": output_dto.angel,
-            "polo": output_dto.polo,
-            "data_limite": output_dto.data_limite.strftime('%Y-%m-%d'),
-            "data_de_atendimento": output_dto.data_de_atendimento.strftime('%Y-%m-%d')
-        }, 200
+        return atendimento
 
     except Exception as e:
         import traceback

@@ -22,11 +22,21 @@ class PutAtendimentoUseCase(UseCaseInterface):
 
         updated_atendimento = self.atendimento_repository.put_atendimento(atendimento)
 
-        return AtendimentoOutputDto(
-            id_atendimento=updated_atendimento.id_atendimento,
-            id_cliente=updated_atendimento.id_cliente,
-            angel=updated_atendimento.angel,
-            polo=updated_atendimento.polo,
-            data_limite=updated_atendimento.data_limite,
-            data_de_atendimento=updated_atendimento.data_de_atendimento
-        )
+        atendimentos_formatados = self.format_atendimentos(updated_atendimento)
+    
+        return {"atendimentos": atendimentos_formatados}, 200
+    
+    def format_atendimentos(self, atendimento):
+        result = [
+            {
+                "id_atendimento": atendimento.id_atendimento,
+                "id_cliente": atendimento.id_cliente,
+                "angel": atendimento.angel,
+                "polo": atendimento.polo,
+                "data_limite": atendimento.data_limite.strftime('%Y-%m-%d'),
+                "data_de_atendimento": atendimento.data_de_atendimento.strftime('%Y-%m-%d')
+            }, 
+        ]
+        return result
+
+

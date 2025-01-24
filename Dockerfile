@@ -9,6 +9,8 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY src /app/
 
 ENV PYTHONPATH=/app:$PYTHONPATH
+
+ENV PYTHONPATH=/app:$PYTHONPATH
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 

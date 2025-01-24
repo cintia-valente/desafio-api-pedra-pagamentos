@@ -41,7 +41,6 @@ def process_dates(df, date_columns):
 def fetch_existing_data(conn, date_column):
     try:
         cur = conn.cursor()
-        # Agora, a query é montada diretamente dentro do f-string
         query = f"SELECT DISTINCT {date_column} FROM atendimentos"
         cur.execute(query)  # Execute a consulta corretamente
         result = cur.fetchall()

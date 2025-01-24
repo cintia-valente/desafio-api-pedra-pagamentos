@@ -42,7 +42,7 @@ def fetch_existing_data(conn, date_column):
     try:
         cur = conn.cursor()
         query = f"SELECT DISTINCT {date_column} FROM atendimentos"
-        cur.execute(query)  # Execute a consulta corretamente
+        cur.execute(query)
         result = cur.fetchall()
         
         return [row[0] for row in result if row[0] is not None]

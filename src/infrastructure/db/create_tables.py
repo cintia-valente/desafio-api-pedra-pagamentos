@@ -10,14 +10,14 @@ def create_tables(conn):
     try:
         cur = conn.cursor()
 
-        logger.info("Creating clients table...")
+        logger.info("Creating 'clientes' table...")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS clientes (
                 id_cliente SERIAL PRIMARY KEY
             );
         """)
 
-        logger.info("Creating attendances table...")
+        logger.info("Creating 'atendimentos' table...")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS atendimentos (
                 id_atendimento INTEGER PRIMARY KEY,
@@ -26,6 +26,15 @@ def create_tables(conn):
                 polo VARCHAR(255),
                 data_limite DATE,
                 data_de_atendimento TIMESTAMP
+            );
+        """)
+
+        logger.info("Creating 'usuarios' table...")
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id SERIAL PRIMARY KEY,
+                usuario VARCHAR(50) UNIQUE NOT NULL,
+                senha VARCHAR(128) NOT NULL
             );
         """)
 

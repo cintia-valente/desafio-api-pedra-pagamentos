@@ -6,3 +6,6 @@ pandas
 setuptools
 wheel
 flasgger
+Flask-JWT-Extended
+PyJWT
+bcrypt

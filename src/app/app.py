@@ -1,5 +1,9 @@
-from flask import Flask, request
+import os
+from venv import logger
+from flask import Flask, jsonify, request
+import psycopg2
 
+from infrastructure.db.database import connect_to_database
 from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
 from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
 from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
@@ -10,17 +14,176 @@ from usecases.factories.get_atendimentos_by_id_cliente_usecase_factory import Ge
 from usecases.factories.put_atendimento_usecase_factory import PutAtendimentoUseCaseFactory
 from dotenv import load_dotenv
 from flasgger import Swagger
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+from utils.auth import check_password, hash_password
 
 app = Flask(__name__)
 
+print("JWT_SECRET_KEY:", os.getenv('TOKEN'))
+app.config['JWT_SECRET_KEY'] = os.getenv('TOKEN')
+jwt = JWTManager(app)
+
 load_dotenv()
 
-swagger = Swagger(app)
+swagger = Swagger(app, template={
+    "swagger": "2.0",
+    "info": {
+        "title": "API com JWT",
+        "description": "Exemplo de autenticação JWT no Swagger",
+        "version": "1.0.0"
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Token JWT no formato 'Bearer <seu-token>'"
+        }
+    },
+    "security": [
+        {"BearerAuth": []}
+    ]
+})
+
+@app.route('/usuarios/registrar', methods=['POST'])
+def post_usuario():
+    """
+    Cria um usuário.
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: user
+        required: true
+        description: usuário e senha
+        schema:
+          type: object
+          properties:
+            usuario:
+              type: string
+              description: usuário
+            senha:
+              type: string
+              description: senha
+    responses:
+      201:
+        description: User registered successfully
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+      400:
+        description: Username and password are required
+      409:
+        description: Invalid credentials
+      500:
+        description: Internal server error
+    """
+    
+    username = request.json.get('usuario', None)
+    password = request.json.get('senha', None)
+
+    if not username or not password:
+        return jsonify({"msg": "Username and password are required"}), 400
+    
+    hashed_pw = hash_password(password)
+
+    try:
+      database_url = os.getenv('DATABASE_URL')
+      conn = connect_to_database(database_url)
+
+      with conn.cursor() as cursor:
+        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)", (username, hashed_pw))
+      
+      conn.commit()
+      
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        return jsonify({"msg": "Username already exists"}), 409
+    
+    except Exception as e:
+        logger.error(f"Error during registration: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+    finally:
+        if conn:
+          conn.close()
+
+    return jsonify({"msg": "User registered successfully"}), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    """
+    Realiza o login de um usuário.
+    ---
+    tags:
+      - Autenticação
+    parameters:
+      - in: body
+        name: user
+        required: true
+        description: usuário e senha
+        schema:
+          type: object
+          properties:
+            usuario:
+              type: string
+            senha:
+              type: string
+    responses:
+      200:
+        description: Login successfully
+        schema:
+          type: object
+          properties:
+            access_token:
+              type: string
+      400:
+        description: Username and password are required
+      401:
+        description: Invalid credentials
+      500:
+        description: Internal server error
+    """
+    username = request.json.get('usuario', None)
+    password = request.json.get('senha', None)
+
+    if not username or not password:
+        return jsonify({"msg": "Username and password are required"}), 400
+
+    try:
+        database_url = os.getenv('DATABASE_URL')
+        conn = connect_to_database(database_url)
+
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT senha FROM usuarios WHERE usuario = %s", (username,))
+            result = cursor.fetchone()
+
+        if not result:
+            return jsonify({"msg": "Unauthorized"}), 401
+
+        hashed_password = result[0]
+
+        if not check_password(hashed_password, password):
+            return jsonify({"msg": "Invalid username or password"}), 400
+
+        access_token = create_access_token(identity=username)
+        return jsonify({"access_token": access_token}), 200
+
+    except Exception as e:
+        logger.error(f"Error during login: {e}")
+        return jsonify({"msg": "Internal server error"}), 500
+
+    finally:
+        conn.close()
 
 def create_post_atendimento_usecase():
     return PostAtendimentoUseCaseFactory.create()
 
 @app.route('/atendimentos/registrar', methods=['POST'])
+@jwt_required()
 def post_atendimento():
     """
     Cria um novo atendimento.
@@ -30,14 +193,26 @@ def post_atendimento():
     operationId: post_atendimento 
     parameters:
       - in: body
-        name: body
+        name: atendimento
         required: true
-        description: Atendimento payload
         schema:
           type: object
+          properties:
+            id_cliente:
+              type: integer
+            angel:
+              type: string
+            polo:
+              type: string
+            data_limite:
+              type: string
+              format: date
+            data_de_atendimento:
+              type: string
+              format: date
     responses:
       201:
-        description: Atendimento criado
+        description: Successfully created service
     """
 
     data = request.get_json()
@@ -47,7 +222,7 @@ def post_atendimento():
         use_case = create_post_atendimento_usecase()
         output_dto = use_case.execute(input_dto)
 
-        return {"id_atendimento": output_dto.id_atendimento}, 201
+        return jsonify({"id_atendimento": output_dto.id_atendimento}), 201
 
     except Exception as e:
         import traceback
@@ -56,6 +231,7 @@ def post_atendimento():
         return {"error": "An unexpected error occurred"}, 500
     
 @app.route('/atendimentos/<int:id_cliente>', methods=['GET'])
+@jwt_required()
 def get_atendimentos_by_id_cliente(id_cliente):
     """
     Obtém todos os atendimentos de um cliente pelo seu ID.
@@ -67,11 +243,10 @@ def get_atendimentos_by_id_cliente(id_cliente):
       - in: path
         name: id_cliente
         required: true
-        description: ID do cliente
         type: integer
     responses:
       200:
-        description: Lista de atendimentos do cliente
+        description: Customer service list
         schema:
           type: array
           items:
@@ -92,7 +267,7 @@ def get_atendimentos_by_id_cliente(id_cliente):
                 type: string
                 format: date
       404:
-        description: Atendimento não encontrado
+        description: Service not found
     """
     
     try:
@@ -100,7 +275,7 @@ def get_atendimentos_by_id_cliente(id_cliente):
         atendimentos_dto = GetAtendimentosByClienteInputDto(id_cliente=id_cliente)
         atendimentos = use_case.execute(atendimentos_dto)
         
-        return atendimentos
+        return jsonify(atendimentos), 201
 
     except Exception as e:
         import traceback
@@ -109,6 +284,7 @@ def get_atendimentos_by_id_cliente(id_cliente):
         return {"error": "An unexpected error occurred"}, 500
     
 @app.route('/atendimentos/<int:id_cliente>/<string:angel>', methods=['GET'])
+@jwt_required()
 def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
     """
     Obtém todos os atendimentos de um cliente realizados por um angel.
@@ -120,12 +296,10 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
       - in: path
         name: id_cliente
         required: true
-        description: ID do cliente
         type: integer
       - in: path
         name: angel
         required: true
-        description: angel
         type: string
     responses:
       200:
@@ -150,14 +324,14 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
                 type: string
                 format: date
       404:
-        description: Atendimento não encontrado
+        description: Service not found
     """
     try:
         use_case = GetAtendimentosClienteByAngelUseCaseFactory.create()
         atendimentos_dto = GetAtendimentosClienteByAngelInputDto(id_cliente=id_cliente, angel=angel)
         atendimentos = use_case.execute(atendimentos_dto)
         
-        return atendimentos
+        return jsonify(atendimentos), 201
 
     except Exception as e:
         import traceback
@@ -166,9 +340,10 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
         return {"error": "Ocorreu um erro inesperado"}, 500
     
 @app.route('/atendimentos/atualizar/<int:id_atendimento>', methods=['PUT'])
+@jwt_required()
 def put_atendimento(id_atendimento):
     """
-    Atualiza um atendimento existente.
+    Atualiza um atendimento.
     ---
     tags:
       - Atendimentos
@@ -177,12 +352,11 @@ def put_atendimento(id_atendimento):
       - in: path
         name: id_atendimento
         required: true
-        description: ID do atendimento
         type: integer
       - in: body
         name: body
         required: true
-        description: Atendimento payload (não inclui o campo id_atendimento no corpo)
+        description: Atendimento (não inclui o campo id_atendimento no corpo)
         schema:
           type: object
           properties:
@@ -191,21 +365,21 @@ def put_atendimento(id_atendimento):
               description: ID do cliente
             angel:
               type: string
-              description: Angel associado ao atendimento
+              description: Angel
             polo:
               type: string
-              description: Polo associado ao atendimento
+              description: Polo
             data_limite:
               type: string
               format: date
-              description: Data limite para o atendimento
+              description: Data limite
             data_de_atendimento:
               type: string
               format: date
               description: Data do atendimento
     responses:
       200:
-        description: Atendimento atualizado
+        description: Successfully updated service
     """
 
     data = request.get_json()
@@ -218,7 +392,7 @@ def put_atendimento(id_atendimento):
         use_case = PutAtendimentoUseCaseFactory.create()
         atendimento = use_case.execute(input_dto)
 
-        return atendimento
+        return jsonify(atendimento), 201
 
     except Exception as e:
         import traceback

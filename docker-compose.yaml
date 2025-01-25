@@ -26,6 +26,15 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432" 
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - "./src:/app"
+    command: ["pytest", "/app/tests"]
+    depends_on:
+      - api
 
 volumes:
   postgres_data:

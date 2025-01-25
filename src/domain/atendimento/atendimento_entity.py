@@ -22,3 +22,12 @@ class Atendimento:
         self.polo = polo
         self.data_limite = data_limite
         self.data_de_atendimento = data_de_atendimento
+
+    def __str__(self):
+        return (f"Atendimento(id_atendimento={self.id_atendimento}, "
+                f"id_cliente={self.id_cliente}, angel={self.angel}, "
+                f"polo={self.polo}, data_limite={self.data_limite}, "
+                f"data_de_atendimento={self.data_de_atendimento})")
+
+    def __repr__(self):
+        return self.__str__()

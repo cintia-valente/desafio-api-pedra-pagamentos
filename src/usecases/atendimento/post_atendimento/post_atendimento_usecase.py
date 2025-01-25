@@ -2,7 +2,7 @@ from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
 from domain.atendimento.atendimento_entity import Atendimento
 from usecases.atendimento.dtos.atendimento_output_dto import AtendimentoOutputDto
-from usecases.atendimento.dtos.post_atendimentos_dtos.post_atendimento_input_dto import PostAtendimentoInputDto
+from usecases.atendimento.dtos.post_atendimentos_dto.post_atendimento_input_dto import PostAtendimentoInputDto
 
 class PostAtendimentoUseCase(UseCaseInterface):
 

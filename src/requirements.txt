@@ -9,3 +9,6 @@ flasgger
 Flask-JWT-Extended
 PyJWT
 bcrypt
+pytest
+pytest-flask
+pytest-mock

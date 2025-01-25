@@ -1,8 +1,8 @@
 import logging
 from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
-from usecases.atendimento.dtos.get_atendimentos_dtos.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
-from usecases.atendimento.dtos.atendimento_output_dto import AtendimentoOutputDto
+from usecases.atendimento.dto.atendimento_output_dto import AtendimentoOutputDto
+from usecases.atendimento.dto.get_atendimentos_dto.get_atendimentos_by_cliente_input_dto import GetAtendimentosByClienteInputDto
 from utils.utils import format_atendimentos
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

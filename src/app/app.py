@@ -19,7 +19,6 @@ from utils.auth import check_password, hash_password
 
 app = Flask(__name__)
 
-print("JWT_SECRET_KEY:", os.getenv('TOKEN'))
 app.config['JWT_SECRET_KEY'] = os.getenv('TOKEN')
 jwt = JWTManager(app)
 
@@ -147,6 +146,7 @@ def login():
       500:
         description: Internal server error
     """
+    
     username = request.json.get('usuario', None)
     password = request.json.get('senha', None)
 
@@ -223,11 +223,9 @@ def post_atendimento():
         output_dto = use_case.execute(input_dto)
 
         return jsonify({"id_atendimento": output_dto.id_atendimento}), 201
-
+  
     except Exception as e:
-        import traceback
-        print(f"Error: {e}")
-        print(traceback.format_exc()) 
+        logger.exception("An unexpected error occurred while creating a new atendimento")
         return {"error": "An unexpected error occurred"}, 500
     
 @app.route('/atendimentos/<int:id_cliente>', methods=['GET'])
@@ -278,9 +276,7 @@ def get_atendimentos_by_id_cliente(id_cliente):
         return jsonify(atendimentos), 201
 
     except Exception as e:
-        import traceback
-        print(f"Error: {e}")
-        print(traceback.format_exc()) 
+        logger.exception(f"An unexpected error occurred while retrieving atendimento for {id_cliente}")
         return {"error": "An unexpected error occurred"}, 500
     
 @app.route('/atendimentos/<int:id_cliente>/<string:angel>', methods=['GET'])
@@ -334,9 +330,7 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
         return jsonify(atendimentos), 201
 
     except Exception as e:
-        import traceback
-        print(f"Error: {e}")
-        print(traceback.format_exc()) 
+        logger.exception(f"An unexpected error occurred while retrieving atendiemnto for {id_cliente} and angel {angel}")
         return {"error": "Ocorreu um erro inesperado"}, 500
     
 @app.route('/atendimentos/atualizar/<int:id_atendimento>', methods=['PUT'])
@@ -395,9 +389,7 @@ def put_atendimento(id_atendimento):
         return jsonify(atendimento), 201
 
     except Exception as e:
-        import traceback
-        print(f"Error: {e}")
-        print(traceback.format_exc())
+        logger.exception(f"An unexpected error occurred while updating service with {id_atendimento}")
         return {"error": "An unexpected error occurred"}, 500
 
 if __name__ == '__main__':

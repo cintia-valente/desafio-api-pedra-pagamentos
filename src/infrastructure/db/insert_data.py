@@ -15,7 +15,7 @@ def insert_data(conn, df, existing_data):
         df = df[~df['data_limite'].isin(existing_data)]
 
         if df.empty:
-            print("No new rows to insert.")
+            logger.info("No new rows to insert.")
             return
         
         df.copy()

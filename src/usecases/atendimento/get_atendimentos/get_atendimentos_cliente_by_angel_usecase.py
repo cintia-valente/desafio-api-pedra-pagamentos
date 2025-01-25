@@ -14,16 +14,25 @@ class GetAtendimentosClienteByAngelUseCase(UseCaseInterface):
         self.atendimento_repository = atendimento_repository
 
     def execute(self, input_dto: GetAtendimentosClienteByAngelInputDto) -> list[AtendimentoOutputDto]:
-        
-        id_cliente = input_dto.id_cliente
-        angel = input_dto.angel
+        try:
+            id_cliente = input_dto.id_cliente
+            angel = input_dto.angel
 
-        atendimentos = self.atendimento_repository.get_atendimentos_cliente_by_angel(id_cliente, angel)
-       
-        if not atendimentos:
-            raise ValueError("Atendimentos not found.")
+            atendimentos_cliente_by_angel = self.atendimento_repository.get_atendimentos_cliente_by_angel(id_cliente, angel)
         
-        atendimentos_formatados = format_atendimentos(atendimentos)
-    
-        return {"atendimentos": atendimentos_formatados}, 200
+            if not atendimentos:
+                raise ValueError("Atendimentos not found for cliente {id_cliente} and angel {angel}")
+            
+            atendimentos= format_atendimentos(atendimentos_cliente_by_angel)
+        
+            return {"atendimentos": atendimentos}, 200
+        
+        except ValueError as e:
+            logger.error(f"Validation error: {str(e)}")
+            return {"error": str(e)}, 404
+
+        except Exception as e:
+            logger.exception(f"Unexpected error while fetching atendimentos: {str(e)}")
+            return {"error": "Error processing the request"}, 500
+        
         

@@ -34,26 +34,26 @@ def test_post_atendimento_success(mock_atendimento):
     mock_cursor.execute.assert_called_once_with(except_query, params)
     assert isinstance(post_return, Atendimento)
 
-def test_post_atendimento_id_not_returned(mock_atendimento, mock_db_connection):
+def test_post_atendimento_id_not_returned(mock_atendimento, mock_database_connection):
     mock_cursor = MagicMock()
-    mock_db_connection.cursor.return_value = mock_cursor
+    mock_database_connection.cursor.return_value = mock_cursor
 
     mock_cursor.fetchone.return_value = None
 
-    atendimento_repository = AtendimentoRepository(mock_db_connection)
+    atendimento_repository = AtendimentoRepository(mock_database_connection)
     
     with pytest.raises(Exception) as exc_info:
         atendimento_repository.post_atendimento(mock_atendimento)
     
     assert "id_atendimento was not returned from the database" in str(exc_info.value)
 
-def test_post_atendimento_database_error(mock_atendimento, mock_db_connection):
+def test_post_atendimento_database_error(mock_atendimento, mock_database_connection):
     mock_cursor = MagicMock()
-    mock_db_connection.cursor.return_value = mock_cursor
+    mock_database_connection.cursor.return_value = mock_cursor
     
     mock_cursor.execute.side_effect = DatabaseError("Database error")
     
-    atendimento_repository = AtendimentoRepository(mock_db_connection)
+    atendimento_repository = AtendimentoRepository(mock_database_connection)
     
     with pytest.raises(Exception) as exc_info:
         atendimento_repository.post_atendimento(mock_atendimento)

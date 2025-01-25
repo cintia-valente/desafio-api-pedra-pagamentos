@@ -15,4 +15,13 @@ class AtendimentoRepositoryInterface(ABC):
     def get_atendimentos_cliente_by_angel(self, id_cliente: int, angel: str) -> list[Atendimento]:
         pass
 
+    @abstractmethod
+    def get_atendimento_by_id(self, id_cliente: int) -> Atendimento:
+        pass
+
+    @abstractmethod
+    def put_atendimento(self, atendimento: Atendimento) -> Atendimento:
+        pass
+
+
     

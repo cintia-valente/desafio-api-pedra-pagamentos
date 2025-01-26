@@ -55,7 +55,6 @@ def post_usuario():
       - in: body
         name: user
         required: true
-        description: usuário e senha
         schema:
           type: object
           properties:
@@ -123,7 +122,6 @@ def login():
       - in: body
         name: user
         required: true
-        description: usuário e senha
         schema:
           type: object
           properties:

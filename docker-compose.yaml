@@ -11,6 +11,7 @@ services:
     environment:
      - DATABASE_URL=${DATABASE_URL} 
      - TOKEN=${TOKEN}
+     - FLASK_RUN_HOST=0.0.0.0
     depends_on:
       - db
     restart: unless-stopped

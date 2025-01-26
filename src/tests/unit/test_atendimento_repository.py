@@ -6,6 +6,7 @@ from psycopg2 import DatabaseError
 from infrastructure.data.atendimento_repository import AtendimentoRepository
 
 def test_post_atendimento_success(mock_atendimento):
+    """Must register a 'atendimento"""
     params = (
         mock_atendimento.id_atendimento,
         mock_atendimento.id_cliente,
@@ -35,6 +36,7 @@ def test_post_atendimento_success(mock_atendimento):
     assert isinstance(post_return, Atendimento)
 
 def test_post_atendimento_id_not_returned(mock_atendimento, mock_database_connection):
+    """Must return an exception of not finding an id_atendimento"""
     mock_cursor = MagicMock()
     mock_database_connection.cursor.return_value = mock_cursor
 
@@ -48,6 +50,7 @@ def test_post_atendimento_id_not_returned(mock_atendimento, mock_database_connec
     assert "id_atendimento was not returned from the database" in str(exc_info.value)
 
 def test_post_atendimento_database_error(mock_atendimento, mock_database_connection):
+    """Must return an exception if an error occurs in the database"""
     mock_cursor = MagicMock()
     mock_database_connection.cursor.return_value = mock_cursor
     
@@ -61,6 +64,7 @@ def test_post_atendimento_database_error(mock_atendimento, mock_database_connect
     assert "Database error" in str(exc_info.value)
 
 def test_get_atendimentos_by_id_cliente_success(mock_cursor_data):
+    """Must return 'atendimentos' by id_cliente"""
     columns, result = mock_cursor_data
     
     mock_conn = MagicMock()
@@ -81,6 +85,7 @@ def test_get_atendimentos_by_id_cliente_success(mock_cursor_data):
     assert len(get_by_id_cliente_return) == 2 
 
 def test_get_atendimentos_by_id_cliente_database_error():    
+    """Must return an exception if an error occurs in the database'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -96,7 +101,8 @@ def test_get_atendimentos_by_id_cliente_database_error():
 
     assert "An error occurred while retrieving atendimentos" in str(exc_info.value)
 
-def test_get_atendimentos_by_id_cliente_unexpected_error():    
+def test_get_atendimentos_by_id_cliente_unexpected_error():   
+    """Must return an exception occurred while retrieving atendimentos""" 
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -113,6 +119,7 @@ def test_get_atendimentos_by_id_cliente_unexpected_error():
     assert "An unexpected error occurred while retrieving atendimentos" in str(exc_info.value)
 
 def test_get_atendimentos_cliente_by_angel_sucess(mock_cursor_data):
+    """Must return all 'cliente' 'atendimento carried out by an 'angel'"""
     columns, result = mock_cursor_data
     
     mock_conn = MagicMock()
@@ -141,6 +148,7 @@ def test_get_atendimentos_cliente_by_angel_sucess(mock_cursor_data):
     assert len(get_by_id_cliente_return) == 2 
 
 def test_get_atendimentos_by_id_cliente_database_error():    
+    """Must return an exception if an error occurs in the database'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -157,7 +165,8 @@ def test_get_atendimentos_by_id_cliente_database_error():
 
     assert "An error occurred while retrieving atendimentos by angel" in str(exc_info.value)
 
-def test_get_atendimentos_by_id_cliente_unexpected_error():    
+def test_get_atendimentos_by_id_cliente_unexpected_error():  
+    """Must return an exception occurred while retrieving 'atendimentos'"""   
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -175,6 +184,7 @@ def test_get_atendimentos_by_id_cliente_unexpected_error():
     assert "An unexpected error occurred while retrieving atendimentos by angel" in str(exc_info.value)
 
 def test_get_atendimento_by_id_success(mock_cursor_data):
+    """Must return 'atendimentos' by id_atendimento""" 
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -203,6 +213,7 @@ def test_get_atendimento_by_id_success(mock_cursor_data):
     assert atendimento.data_de_atendimento == result[0][5]
 
 def test_get_atendimento_by_id_not_found():
+    """Must return an exception if not found id_atendimento""" 
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -215,9 +226,10 @@ def test_get_atendimento_by_id_not_found():
     with pytest.raises(Exception) as exc_info:
         atendimento_repository.get_atendimento_by_id(id_atendimento)
 
-    assert "Erro while fetching atendimento: Atendimento with id_atendimento 1 not found" in str(exc_info.value)
+    assert "Erro while fetching atendimento: Atendimento with id_atendimento not found" in str(exc_info.value)
 
 def test_get_atendimento_by_id_database_error():
+    """Must return an exception if an error occurs in the database'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -233,6 +245,7 @@ def test_get_atendimento_by_id_database_error():
     assert "Database error" in str(exc_info.value)
 
 def test_get_atendimento_by_id_unexpected_error():
+    """Must return an exception occurred while fetching atendimentos"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -248,6 +261,7 @@ def test_get_atendimento_by_id_unexpected_error():
     assert "Erro while fetching atendimento" in str(exc_info.value)
   
 def test_put_atendimento_success(mock_atendimento):
+    """Must update a 'antendimento'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -281,6 +295,7 @@ def test_put_atendimento_success(mock_atendimento):
     assert updated_atendimento.data_de_atendimento == mock_atendimento.data_de_atendimento
 
 def test_put_atendimento_not_found(mock_atendimento):
+    """Must return exception if not found id_atendimento"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -295,6 +310,7 @@ def test_put_atendimento_not_found(mock_atendimento):
     assert "No atendimento found with the provided id_atendimento" in str(exc_info.value)
 
 def test_put_atendimento_database_error(mock_atendimento):
+    """Must return an exception if an error occurs in the database'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -309,6 +325,7 @@ def test_put_atendimento_database_error(mock_atendimento):
     assert "Database error" in str(exc_info.value)
 
 def test_put_atendimento_generic_error(mock_atendimento):
+    """Must return an exception occurred while updating a 'atendimento'"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor

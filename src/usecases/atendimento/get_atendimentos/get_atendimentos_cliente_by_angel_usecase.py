@@ -3,7 +3,7 @@ from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
 from usecases.atendimento.dtos.atendimento_output_dto import AtendimentoOutputDto
 from usecases.atendimento.dtos.get_atendimentos_dto.get_atendimentos_cliente_by_angel_input_dto import GetAtendimentosClienteByAngelInputDto
-from utils.utils import format_atendimentos
+from utils.format import format_atendimentos
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
@@ -20,8 +20,8 @@ class GetAtendimentosClienteByAngelUseCase(UseCaseInterface):
 
             atendimentos_cliente_by_angel = self.atendimento_repository.get_atendimentos_cliente_by_angel(id_cliente, angel)
         
-            if not atendimentos:
-                raise ValueError("Atendimentos not found for cliente {id_cliente} and angel {angel}")
+            if not atendimentos_cliente_by_angel:
+                raise ValueError(f"Atendimentos not found for cliente {id_cliente} and angel {angel}")
             
             atendimentos= format_atendimentos(atendimentos_cliente_by_angel)
         

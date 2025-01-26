@@ -10,11 +10,6 @@ TEST_USER = {
     "senha": "password123",
 }
 
-def test_register_user():
-    response = requests.post(f"{BASE_URL}/usuarios/registrar", json=TEST_USER)
-    assert response.status_code == 201, response.text
-
-
 def test_post_usuario():
     """Must register a new 'usuario'"""
     response = requests.post(f"{BASE_URL}/usuarios/registrar", json=TEST_USER)

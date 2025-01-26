@@ -226,7 +226,7 @@ def test_get_atendimento_by_id_not_found():
     with pytest.raises(Exception) as exc_info:
         atendimento_repository.get_atendimento_by_id(id_atendimento)
 
-    assert "Erro while fetching atendimento: Atendimento with id_atendimento not found" in str(exc_info.value)
+    assert f"Erro while fetching atendimento: Atendimento with id_atendimento {id_atendimento} not found" in str(exc_info.value)
 
 def test_get_atendimento_by_id_database_error():
     """Must return an exception if an error occurs in the database'"""

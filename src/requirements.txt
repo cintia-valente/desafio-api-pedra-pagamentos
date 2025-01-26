@@ -12,3 +12,4 @@ bcrypt
 pytest
 pytest-flask
 pytest-mock
+requests

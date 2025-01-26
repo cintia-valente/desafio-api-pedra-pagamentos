@@ -177,9 +177,6 @@ def login():
     finally:
         conn.close()
 
-def create_post_atendimento_usecase():
-    return PostAtendimentoUseCaseFactory.create()
-
 @app.route('/atendimentos/registrar', methods=['POST'])
 @jwt_required()
 def post_atendimento():
@@ -218,15 +215,15 @@ def post_atendimento():
     data = request.get_json()
 
     try:
+        
         input_dto = PostAtendimentoInputDto(**data)
-        use_case = create_post_atendimento_usecase()
-        output_dto = use_case.execute(input_dto)
+        post_use_case_factory = PostAtendimentoUseCaseFactory.create()
+        atendimento = post_use_case_factory.execute(input_dto)
 
-        return jsonify({"id_atendimento": output_dto.id_atendimento}), 201
+        return jsonify({"id_atendimento": atendimento.id_atendimento}), 201
   
     except Exception as e:
-        logger.exception("An unexpected error occurred while creating a new atendimento")
-        return {"error": "An unexpected error occurred"}, 500
+        return {"error": "Existing id_atendimento"}, 500
     
 @app.route('/atendimentos/<int:id_cliente>', methods=['GET'])
 @jwt_required()
@@ -269,9 +266,9 @@ def get_atendimentos_by_id_cliente(id_cliente):
     """
     
     try:
-        use_case = GetAtendimentosByIdClienteUseCaseFactory.create()
+        get_atendimentos_by_cliente_use_case_factory = GetAtendimentosByIdClienteUseCaseFactory.create()
         atendimentos_dto = GetAtendimentosByClienteInputDto(id_cliente=id_cliente)
-        atendimentos = use_case.execute(atendimentos_dto)
+        atendimentos = get_atendimentos_by_cliente_use_case_factory.execute(atendimentos_dto)
         
         return jsonify(atendimentos), 201
 
@@ -323,15 +320,15 @@ def get_atendimentos_by_cliente_and_angel(id_cliente, angel):
         description: Service not found
     """
     try:
-        use_case = GetAtendimentosClienteByAngelUseCaseFactory.create()
+        get_cliente_by_angel_use_case_factory = GetAtendimentosClienteByAngelUseCaseFactory.create()
         atendimentos_dto = GetAtendimentosClienteByAngelInputDto(id_cliente=id_cliente, angel=angel)
-        atendimentos = use_case.execute(atendimentos_dto)
+        atendimentos = get_cliente_by_angel_use_case_factory.execute(atendimentos_dto)
         
         return jsonify(atendimentos), 201
 
     except Exception as e:
         logger.exception(f"An unexpected error occurred while retrieving atendiemnto for {id_cliente} and angel {angel}")
-        return {"error": "Ocorreu um erro inesperado"}, 500
+        return {"error": "An unexpected error occurred"}, 500
     
 @app.route('/atendimentos/atualizar/<int:id_atendimento>', methods=['PUT'])
 @jwt_required()
@@ -383,14 +380,13 @@ def put_atendimento(id_atendimento):
 
     try:
         input_dto = PutAtendimentoInputDto(id_atendimento=id_atendimento, **data)
-        use_case = PutAtendimentoUseCaseFactory.create()
-        atendimento = use_case.execute(input_dto)
+        put_use_case_factory = PutAtendimentoUseCaseFactory.create()
+        atendimento = put_use_case_factory.execute(input_dto)
 
         return jsonify(atendimento), 201
 
     except Exception as e:
-        logger.exception(f"An unexpected error occurred while updating service with {id_atendimento}")
-        return {"error": "An unexpected error occurred"}, 500
+        return {"error": "Existing id_atendimento"}, 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

@@ -1,9 +1,12 @@
+import logging
 from domain.___seedwork.use_case_interface import UseCaseInterface
 from domain.atendimento.atendimento_repository_interface import AtendimentoRepositoryInterface
 from domain.atendimento.atendimento_entity import Atendimento
 from usecases.atendimento.dtos.atendimento_output_dto import AtendimentoOutputDto
 from usecases.atendimento.dtos.post_atendimentos_dto.post_atendimento_input_dto import PostAtendimentoInputDto
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 class PostAtendimentoUseCase(UseCaseInterface):
 
    def __init__(self, atendimento_repository: AtendimentoRepositoryInterface):
@@ -22,7 +25,8 @@ class PostAtendimentoUseCase(UseCaseInterface):
          saved_atendimento = self.atendimento_repository.post_atendimento(atendimento=atendimento)
          
       except Exception as e:
-         raise Exception(f"Error while saving atendimento: {str(e)}")
+            logger.exception(f"Unexpected error while fetching atendimentos: {str(e)}")
+            return {"error": "Error processing the request"}, 500
       
       return AtendimentoOutputDto(
          id_atendimento=saved_atendimento.id_atendimento,

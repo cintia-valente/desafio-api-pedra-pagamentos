@@ -96,7 +96,7 @@ class AtendimentoRepository(AtendimentoRepositoryInterface):
             result = self.cursor.fetchall()
 
             if not result:
-                logger.info(f"No atendimentos found for id_cliente={id_cliente} and angel={angel}")
+                logger.info(f"Atendimentos not found for id_cliente={id_cliente} and angel={angel}")
                 return []
 
             atendimentos = [Atendimento(**dict(zip(columns, row))) for row in result]

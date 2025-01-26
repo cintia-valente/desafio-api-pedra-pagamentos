@@ -196,6 +196,8 @@ def post_atendimento():
         schema:
           type: object
           properties:
+            id_atendimento:
+              type: integer
             id_cliente:
               type: integer
             angel:

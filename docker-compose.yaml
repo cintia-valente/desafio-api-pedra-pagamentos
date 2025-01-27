@@ -15,7 +15,7 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    command: ["sh", "-c", "python /app/src/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:$PORT app.app:app"]
+    command: ["gunicorn", "--reload", "-b", "0.0.0.0:$PORT", "app.app:app"]
 
   db:
     image: postgres:latest  
@@ -23,6 +23,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER} 
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
       - POSTGRES_DB=${POSTGRES_DB} 
+      - PORT=8080
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

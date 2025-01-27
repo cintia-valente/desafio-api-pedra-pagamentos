@@ -15,5 +15,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "python /app/src/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:$PORT app.app:app"]
+CMD ["sh", "-c", "echo $PORT && gunicorn --reload -b 0.0.0.0:$PORT app.app:app"]
 

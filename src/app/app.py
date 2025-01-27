@@ -44,6 +44,10 @@ swagger = Swagger(app, template={
     ]
 })
 
+@app.route('/health', methods=['GET'])
+def health():
+    return "OK", 200
+
 @app.route('/usuarios/registrar', methods=['POST'])
 def post_usuario():
     """
@@ -389,5 +393,4 @@ def put_atendimento(id_atendimento):
         return {"error": "Existing id_atendimento"}, 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=True) 
+    app.run(host='0.0.0.0')

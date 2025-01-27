@@ -3,7 +3,7 @@ import requests
 import uuid
 import requests
 
-BASE_URL = "http://api:8080"
+BASE_URL = "http://api:5000"
 
 def generate_id_random():
     return random.randint(1000000, 9999999) 

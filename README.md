@@ -110,7 +110,7 @@ Arquivos como **get_atendimentos_by_id_cliente_usecase.py** e **get_atendimentos
 - **atendimento_repository.py**: Implementa a interface do repositório de atendimentos, utilizando um banco de dados ou outra solução de persistência.
 - Arquivos como **create_tables.py**, **database.py**, **insert_data.py** e **load_data.py** lidam com a configuração do banco de dados, criação de tabelas e inserção de dados.
 
-### SOLID
+## SOLID
 A aplicação segue os princípios SOLID de design de software para garantir que o código seja bem estruturado, de fácil manutenção e escalabilidade.
 
 **Responsabilidade Única (SRP):**
@@ -138,7 +138,7 @@ As interfaces são específicas, o que permite que as classes implementem apenas
 O projeto segue o princípio da inversão de dependência ao depender de abstrações (interfaces) em vez de implementações concretas.
 Por exemplo, na camada de **usecases**, os casos de uso dependem da interface **atendimento_repository_interface.py** para buscar ou salvar atendimentos, mas não dependem diretamente da implementação específica do repositório (seja ela baseada em banco de dados ou arquivos).
 
-## Desing Patterns
+## Design Patterns
 ### Factory Method
 
 O padrão Factory Method é utilizado para criar objetos de forma flexível e desacoplada. Ele permite que os casos de uso e repositórios sejam criados sem que o código de execução precise saber os detalhes de como esses objetos são instanciados.

@@ -24,6 +24,9 @@ jwt = JWTManager(app)
 
 load_dotenv()
 
+port = int(os.environ.get("PORT", 8080))
+app.run(host='0.0.0.0', port=port)
+
 swagger = Swagger(app, template={
     "swagger": "2.0",
     "info": {
@@ -389,4 +392,4 @@ def put_atendimento(id_atendimento):
         return {"error": "Existing id_atendimento"}, 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=port)

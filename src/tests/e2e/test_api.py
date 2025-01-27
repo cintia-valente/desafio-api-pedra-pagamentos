@@ -4,7 +4,7 @@ import requests
 from venv import logger
 from utils.test_helpers import check_id_exists, generate_id_random
 
-BASE_URL = "http://api:5000"
+BASE_URL = "http://api:8080"
 TEST_USER = {
     "usuario": f"user_{str(uuid.uuid4())}",
     "senha": "password123",

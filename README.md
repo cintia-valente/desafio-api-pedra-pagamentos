@@ -1,4 +1,4 @@
-# API REST de Atendimento
+# API REST de Atendimentos
 #### Este é um projeto de uma API REST implementada com base na Clean Architecture. A aplicação visa fornecer funcionalidades para gerenciar atendimentos de clientes, como inserção, consulta e atualização de registros.
 
 ## Estrutura do Projeto

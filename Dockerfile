@@ -13,7 +13,7 @@ ENV PYTHONPATH=/app:$PYTHONPATH
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
-EXPOSE 5000
+EXPOSE 8080
 
 CMD ["sh", "-c", "python /app/src/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:$PORT app.app:app"]
 

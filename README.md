@@ -2,7 +2,7 @@
 #### Este é um projeto de uma API REST implementada em Python com o framweork Flask. A aplicação visa fornecer funcionalidades para gerenciar atendimentos de clientes, como inserção, consulta e atualização de registros.
 
 ## Estrutura do Projeto
-O projeto foi organizado utilizando a Clean Architecture, que visa separar as responsabilidades em camadas distintas. O fluxo de dados entre essas camadas é bem definido, o que facilita a manutenção e expansão do sistema.
+O projeto foi organizado utilizando Clean Architecture, que visa separar as responsabilidades em camadas distintas. O fluxo de dados entre essas camadas é bem definido, o que facilita a manutenção e expansão do sistema.
 
 ```plaintext
 📦src
@@ -77,20 +77,20 @@ O projeto foi organizado utilizando a Clean Architecture, que visa separar as re
 
 - **src/app**: Contém a aplicação principal, como os endpoints e configurações do servidor.
 
-- **src/domain**: Define as entidades e as interfaces de repositórios. Aqui, também são definidos os casos de uso.
+- **src/domain**: Define as entidades e as interfaces de repositórios.
 
 - **src/infrastructure**: Implementações dos repositórios, banco de dados e lógica de persistência.
 
 - **src/usecases**: Casos de uso, DTOs e lógica de negócio da aplicação.
 
-- **src/tests**: Testes de integração (E2E) e unitários.
+- **src/tests**: Testes unitário e end-to-end.
 
 - **src/factories**: Contém as fábricas para criação dos casos de uso, promovendo o padrão Factory Method.
 
-- **src/scripts**: Scripts auxiliares como load_data.py para carregar dados no banco de dados.
+- **src/scripts**: Scripts auxiliares como load_data.py para carregar dados no banco de dados e efetuar a carga do arquivo CSV.
 
-### Padrões de projeto
-## Clean Architecture
+## Padrões de projeto
+### Clean Architecture
 A Arquitetura Limpa foi escolhida para separar claramente as responsabilidades do sistema em diferentes camadas, o que ajuda a manter o código organizado, testável e de fácil manutenção. A estrutura de pastas foi projetada para refletir os princípios dessa arquitetura, com o objetivo de garantir a independência das camadas e facilitar futuras extensões.
 
 **Domain**: Esta camada contém as regras de negócios principais e as entidades de dados. Ela é independente de qualquer framework, biblioteca ou tecnologia externa. Temos:
@@ -210,15 +210,24 @@ em execute, retornará um token, copie a parte de dentro das aspas.
 
   Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9frvrv7873w4gbvfvfbvv34vu
 
-- clique em  para aplicar o token às requisições.
+- clique em **"Authorize"** para aplicar o token às requisições.
 
-Agora, ao testar as rotas protegidas como, o Swagger 
-enviará automaticamente o token de autenticação nas requisições, e 
-você receberá a resposta de acordo com o estado de autenticação .
+Agora, ao testar as rotas protegidas, o Swagger 
+enviará automaticamente o token de autenticação nas requisições, e a resposta de acordo com o estado de autenticação .
 
-Isso permitirá que você utilize as rotas protegidas diretamente no 
+Isso permitirá utilizar as rotas protegidas diretamente no 
 Swagger com o token de autenticação JWT.
 
+Exemplo de um Atendimento:
+````
+{
+  "angel": "Green Angel",
+  "data_de_atendimento": "2025-01-21T10:00:00",
+  "data_limite": "2025-01-22T12:00:00",
+  "id_cliente": 77226365,
+  "polo": "base"
+}
+````
 ## Testes
 
-Foram implemetados testes unitários end-to-end para garantir o bom funcionamento da aplicação. Ao rodar docker-compose up --build os testes só começarão após a API executar.
+Foram implementados testes unitários e end-to-end para garantir o bom funcionamento da aplicação. Ao rodar docker-compose up --build os testes começarão após a execução da API.

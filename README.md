@@ -178,7 +178,7 @@ Para rodar a aplicação, siga os passos abaixo:
 git clone <url-do-repositorio>
 ```
 
-- **Configure as variáveis de ambiente***: Crie um arquivo **.env** na raiz do projeto com as variáveis necessárias, como o URL do banco de dados, por exemplo:
+- **Configure as variáveis de ambiente***: Crie um arquivo **.env** na raiz do projeto com as variáveis necessárias, como a URL do banco de dados, por exemplo:
 
 ```
 DATABASE_URL=postgres://user:password@localhost:5432/dbname

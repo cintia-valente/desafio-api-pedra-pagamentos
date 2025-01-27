@@ -44,6 +44,10 @@ swagger = Swagger(app, template={
     ]
 })
 
+@app.route('/health', methods=['GET'])
+def health():
+    return "OK", 200
+
 @app.route('/usuarios/registrar', methods=['POST'])
 def post_usuario():
     """

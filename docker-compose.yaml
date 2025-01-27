@@ -12,6 +12,11 @@ services:
      - DATABASE_URL=${DATABASE_URL} 
      - TOKEN=${TOKEN}
      - FLASK_RUN_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       - db
     restart: unless-stopped
@@ -23,6 +28,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER} 
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} 
       - POSTGRES_DB=${POSTGRES_DB} 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -33,7 +43,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - "./src:/app"
-    command: ["pytest", "/app/tests"]
+    command: ["sh", "-c", "until curl -s http://api:5000/health; do sleep 1; done; pytest /app/tests"]
+
     depends_on:
       - api
 

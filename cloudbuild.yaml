@@ -8,6 +8,15 @@ steps:
       - 'Dockerfile'
       - '.'
 
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'sql'
+      - 'connect'
+      - 'desafio-api-pedra-pagamentos:us-central1:api-pedra-db-01' 
+      - '--user=postgres'
+      - '--password=$POSTGRES_PASSWORD'
+      - '--database=postgres'
+
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -21,17 +30,16 @@ steps:
     entrypoint: '/cloud_sql_proxy'
     args:
       - '-dir=/cloudsql'
-      - '-credential_file=/secrets/cloudsql/credentials.json'  # A autenticação para o Cloud SQL
-      - 'tcp:5432'  # Usando a porta padrão para PostgreSQL
+      - '-credential_file=/secrets/cloudsql/credentials.json'  
+      - 'tcp:5432' 
     secretEnv:
-      - DATABASE_URL  # O segredo armazenado no Secret Manager
+      - DATABASE_URL  
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'run'
       - '--rm'
-      - '--link'
-      - 'cloudsql:cloudsql'  # Linkando o Cloud SQL Proxy ao contêiner
+      - 'cloudsql:cloudsql'
       - 'gcr.io/$PROJECT_ID/my-tests:$COMMIT_SHA'
       - 'pytest'
       - '/app/tests'

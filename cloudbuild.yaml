@@ -26,6 +26,16 @@ steps:
       - 'Dockerfile'
       - '.'
 
+    - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        python /app/infrastructure/scripts/main.py 
+        if [ -f "/app/infrastructure/data/bd_erros_de_conversao_datas.csv" ]; then
+          gsutil cp /app/infrastructure/data/bd_erros_de_conversao_datas.csv gs://$PROJECT_ID/bd_erros_de_conversao_datas.csv  
+        fi
+
   - name: 'gcr.io/cloudsql-docker/gce-proxy:latest'
     entrypoint: '/cloud_sql_proxy'
     args:

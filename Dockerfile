@@ -6,7 +6,7 @@ COPY src/requirements.txt /app/
 
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-COPY src /app/
+COPY src /app/src
 
 ENV PYTHONPATH=/app:$PYTHONPATH
 
@@ -15,5 +15,5 @@ ENV FLASK_RUN_HOST=0.0.0.0
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "python app/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:8080 app.app:app"]
+CMD ["sh", "-c", "python /app/src/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:$PORT app.app:app"]
 

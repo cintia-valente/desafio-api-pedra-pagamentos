@@ -188,8 +188,8 @@ POSTGRES_DB=nome_postgres
 DATABASE_URL=postgres://postgres:senha@db:5432/nome_postgres
 TOKEN="10a8b85a24031160459bca0025587b318581df6e7eee466e208dfbfd912d8b39"
 ```
-
-- O **token** é gerado pelo função **generate_jwt()** no arquivo utils/auth.py, ao rodar a api, um token será mostrado na tela:
+**Token válido**:
+TOKEN="10a8b85a24031160459bca0025587b318581df6e7eee466e208dfbfd912d8b39"
 
 
 **Inicie os containers Docker**:

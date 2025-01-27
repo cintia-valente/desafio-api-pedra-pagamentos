@@ -13,3 +13,4 @@ pytest
 pytest-flask
 pytest-mock
 requests
+google-cloud-monitoring

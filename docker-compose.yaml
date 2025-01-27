@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    command: ["gunicorn", "--reload", "-b", "0.0.0.0:$PORT", "app.app:app"]
+    command: ["sh", "-c", "python /app/infrastructure/scripts/main.py && gunicorn --reload -b 0.0.0.0:5000 app.app:app"]
 
   db:
     image: postgres:latest  

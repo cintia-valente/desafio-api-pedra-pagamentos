@@ -1,3 +1,5 @@
+<img align="center" alt="python" height="30" width="40" src="https://raw.githubusercontent.com/izumin5210/emojipack-for-devicon/master/png/python.png">
+ 
 # API REST de Atendimentos
 #### Este é um projeto de uma API REST implementada em Python com o framweork Flask. A aplicação visa fornecer funcionalidades para gerenciar atendimentos de clientes, como inserção, consulta e atualização de registros.
 
